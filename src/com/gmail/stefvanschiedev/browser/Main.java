@@ -80,7 +80,7 @@ public class Main extends Application {
         ObservableList<Tab> tabs = tabPane.getTabs();
 
         stage.setOnCloseRequest(event -> {
-            if (tabs.size() > 1) {
+            if (tabs.size() > 2) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Closing window");
                 alert.setHeaderText("");
