@@ -9,13 +9,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.*;
 import java.net.*;
@@ -162,6 +160,45 @@ public class Main extends Application {
         BrowserTab browserTab = new BrowserTab();
         browserTab.setText("Loading...");
         browserTab.setURL("https://google.com/");
+
+        ContextMenu tabContextMenu = new ContextMenu();
+
+        MenuItem closeItem = new MenuItem("Close");
+        closeItem.setOnAction(event -> {
+            tabPane.getTabs().remove(browserTab);
+
+            if (tabPane.getTabs().size() == 1)
+                stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+        MenuItem closeOthers = new MenuItem("Close others");
+        closeOthers.setOnAction(event -> {
+            int searchIndex = 0;
+
+            while (tabPane.getTabs().size() > 2) {
+                Tab tab = tabPane.getTabs().get(searchIndex);
+
+                if (tab.equals(browserTab))
+                    searchIndex++;
+                else
+                    tabPane.getTabs().remove(tab);
+            }
+        });
+        MenuItem closeLeft = new MenuItem("Close all on left side");
+        closeLeft.setOnAction(event -> {
+            int pos = tabPane.getTabs().indexOf(browserTab);
+
+            for (int i = 0; i < pos; i++)
+                tabPane.getTabs().remove(i);
+        });
+        MenuItem closeRight = new MenuItem("Close all on right side");
+        closeRight.setOnAction(event -> {
+            int pos = tabPane.getTabs().indexOf(browserTab);
+
+            for (int i = pos + 1; i < tabPane.getTabs().size(); i++)
+                tabPane.getTabs().remove(i);
+        });
+        tabContextMenu.getItems().addAll(closeItem, closeOthers, closeLeft, closeRight);
+        browserTab.setContextMenu(tabContextMenu);
 
         ObservableList<Tab> tabs = tabPane.getTabs();
 
