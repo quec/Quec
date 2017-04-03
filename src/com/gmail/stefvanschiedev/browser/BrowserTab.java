@@ -5,6 +5,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
@@ -129,15 +131,6 @@ class BrowserTab extends Tab {
             setText(pageTitle);
             urlField.setText(locationText);
 
-            //check bookmarks
-            try {
-                URL url = new URL(locationText);
-
-                if (Bookmark.getBookmark(url.getProtocol() + "://" + url.getHost()) != null)
-                    bookmarkButton.setSelected(true);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
         });
 
         WebHistory history = engine.getHistory();
@@ -250,14 +243,29 @@ class BrowserTab extends Tab {
             alert.showAndWait();
         });
 
+        location.addListener((observable, oldValue, newValue) -> {
+            //check bookmarks
+
+            try {
+                URL url = new URL(location.get());
+
+                if (Bookmark.getBookmark(url.getProtocol() + "://" + url.getHost()) != null)
+                    bookmarkButton.setSelected(true);
+                else
+                    bookmarkButton.setSelected(false);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        });
+
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
     }
 
-    void setURL(String url) {
-        webView.getEngine().load(url);
+    void setURL(String urlText) {
+        webView.getEngine().load(urlText);
     }
 
     private void search(String text) {
-        webView.getEngine().load("https://google.com/search?q=" + text);
+        setURL("https://google.com/search?q=" + text);
     }
 }
