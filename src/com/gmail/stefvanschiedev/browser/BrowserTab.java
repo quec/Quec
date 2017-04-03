@@ -13,6 +13,8 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
@@ -25,6 +27,7 @@ import org.w3c.dom.events.EventTarget;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -51,6 +54,8 @@ class BrowserTab extends Tab {
     @FXML
     private Label zoomLabel;
 
+    private ImageView imageView;
+
     BrowserTab() {
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -70,6 +75,8 @@ class BrowserTab extends Tab {
         WebEngine engine = webView.getEngine();
         ReadOnlyObjectProperty<Document> document = engine.documentProperty();
         ReadOnlyStringProperty location = engine.locationProperty();
+
+        imageView = new ImageView();
 
         engine.setUserAgent("Quec/1.0");
         engine.setUserDataDirectory(Values.USERDATAFILE);
@@ -246,7 +253,6 @@ class BrowserTab extends Tab {
 
         location.addListener((observable, oldValue, newValue) -> {
             //check bookmarks
-
             try {
                 URL url = new URL(location.get());
 
@@ -257,9 +263,20 @@ class BrowserTab extends Tab {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
+
+            //favicon
+            try {
+                String faviconUrl = String.format("http://www.google.com/s2/favicons?domain_url=%s", URLEncoder.encode(location.get(), "UTF-8"));
+                Image favicon = new Image(faviconUrl, true);
+                imageView.setImage(favicon);
+            } catch (UnsupportedEncodingException ex) {
+                throw new RuntimeException(ex); // not expected
+            }
         });
 
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
+
+        setGraphic(imageView);
     }
 
     void setURL(String urlText) {
