@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,6 +20,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -249,6 +252,17 @@ class BrowserTab extends Tab {
             alert.setHeaderText("");
             alert.setContentText(event.getData());
             alert.showAndWait();
+        });
+
+        engine.setCreatePopupHandler(handler -> {
+            Stage stage = new Stage(StageStyle.UTILITY);
+            WebView view = new WebView();
+            stage.setScene(new Scene(view));
+            stage.show();
+
+            System.out.println("popup");
+
+            return view.getEngine();
         });
 
         location.addListener((observable, oldValue, newValue) -> {
