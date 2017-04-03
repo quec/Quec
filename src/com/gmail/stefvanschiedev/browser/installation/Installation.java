@@ -48,58 +48,82 @@ public class Installation extends Application {
         Platform.runLater(() -> {
             text.setText("Creating folders");
 
-            if (!Values.SRCFILE.mkdirs()) {
-                outputArea.setText(outputArea.getText() + "Fatal error: unable to create folder\n");
-                outputArea.setText(outputArea.getText() + "Installation terminated; removing created folders\n");
-                text.setText("Terminating installation");
-                undoInstallation();
-                Platform.exit();
+            if (!Values.SRCFILE.exists()) {
+                if (!Values.SRCFILE.mkdirs()) {
+                    outputArea.setText(outputArea.getText() + "Fatal error: unable to create folder\n");
+                    outputArea.setText(outputArea.getText() + "Installation terminated; removing created folders\n");
+                    text.setText("Terminating installation");
+                    undoInstallation();
+                    Platform.exit();
+                }
+
+                outputArea.setText(outputArea.getText() + "Created directory\n");
             }
 
-            outputArea.setText(outputArea.getText() + "Created directory\n");
-            progress.setProgress(1.0 / 3.0);
+            progress.setProgress(0.25);
             text.setText("Creating files");
 
-            try {
-                if (!Values.COOKIESFILE.createNewFile()) {
+            if (!Values.COOKIESFILE.exists()) {
+                try {
+                    if (!Values.COOKIESFILE.createNewFile()) {
+                        outputArea.setText(outputArea.getText() + "Fatal error: unable to create cookie file\n");
+                        outputArea.setText(outputArea.getText() + "Installation terminated; removing created files and folders\n");
+                        text.setText("Terminating installation");
+                        undoInstallation();
+                        Platform.exit();
+                    }
+                } catch (IOException e) {
                     outputArea.setText(outputArea.getText() + "Fatal error: unable to create cookie file\n");
-                    outputArea.setText(outputArea.getText() + "Installation terminated; removing created files and folders\n");
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    outputArea.setText(outputArea.getText() + sw.toString() + "\nInstallation terminated; removing created files and folders\n");
                     text.setText("Terminating installation");
                     undoInstallation();
                     Platform.exit();
                 }
-            } catch (IOException e) {
-                outputArea.setText(outputArea.getText() + "Fatal error: unable to create cookie file\n");
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-                outputArea.setText(outputArea.getText() + sw.toString() + "\nInstallation terminated; removing created files and folders\n");
-                text.setText("Terminating installation");
-                undoInstallation();
-                Platform.exit();
+
+                outputArea.setText(outputArea.getText() + "Created cookie file\n");
             }
 
-            outputArea.setText(outputArea.getText() + "Created cookie file\n");
-            progress.setProgress(2.0 / 3.0);
+            progress.setProgress(0.5);
 
-            try {
-                if (!Values.BOOKMARKFILE.createNewFile()) {
+            if (!Values.BOOKMARKFILE.exists()) {
+                try {
+                    if (!Values.BOOKMARKFILE.createNewFile()) {
+                        outputArea.setText(outputArea.getText() + "Fatal error: unable to create bookmark file\n");
+                        outputArea.setText(outputArea.getText() + "Installation terminated; removing created files and folders\n");
+                        text.setText("Terminating installation");
+                        undoInstallation();
+                        Platform.exit();
+                    }
+                } catch (IOException e) {
                     outputArea.setText(outputArea.getText() + "Fatal error: unable to create bookmark file\n");
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    outputArea.setText(outputArea.getText() + sw.toString() + "\nInstallation terminated; removing created files and folders\n");
+                    text.setText("Terminating installation");
+                    undoInstallation();
+                    Platform.exit();
+                }
+
+                outputArea.setText(outputArea.getText() + "Created bookmark file\n");
+            }
+
+            progress.setProgress(0.75);
+            text.setText("Creating folder");
+
+            if (!Values.USERDATAFILE.exists()) {
+                if (!Values.USERDATAFILE.mkdirs()) {
+                    outputArea.setText(outputArea.getText() + "Fatal error: unable to create userdata folder\n");
                     outputArea.setText(outputArea.getText() + "Installation terminated; removing created files and folders\n");
                     text.setText("Terminating installation");
                     undoInstallation();
                     Platform.exit();
                 }
-            } catch (IOException e) {
-                outputArea.setText(outputArea.getText() + "Fatal error: unable to create bookmark file\n");
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-                outputArea.setText(outputArea.getText() + sw.toString() + "\nInstallation terminated; removing created files and folders\n");
-                text.setText("Terminating installation");
-                undoInstallation();
-                Platform.exit();
+
+                outputArea.setText(outputArea.getText() + "Created userdata folder\n");
             }
 
-            outputArea.setText(outputArea.getText() + "Created bookmark file\n");
             progress.setProgress(1);
 
             text.setText("Installation finished, run application again to start");
@@ -107,13 +131,16 @@ public class Installation extends Application {
     }
 
     private void undoInstallation() {
+        if (!Values.USERDATAFILE.delete())
+            outputArea.setText(outputArea.getText() + "Fatal error: unable to delete userdata folder\n");
+
         if (!Values.BOOKMARKFILE.delete())
-            outputArea.setText("Fatal error: unable to delete bookmark file\n");
+            outputArea.setText(outputArea.getText() + "Fatal error: unable to delete bookmark file\n");
 
         if (!Values.COOKIESFILE.delete())
-            outputArea.setText("Fatal error: unable to delete cookie file\n");
+            outputArea.setText(outputArea.getText() + "Fatal error: unable to delete cookie file\n");
 
         if (!Values.SRCFILE.delete())
-            outputArea.setText("Fatal error: unable to delete folder\n");
+            outputArea.setText(outputArea.getText() + "Fatal error: unable to delete folder\n");
     }
 }

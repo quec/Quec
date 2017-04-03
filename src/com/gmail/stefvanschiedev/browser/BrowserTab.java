@@ -72,6 +72,7 @@ class BrowserTab extends Tab {
         ReadOnlyStringProperty location = engine.locationProperty();
 
         engine.setUserAgent("Quec/1.0");
+        engine.setUserDataDirectory(Values.USERDATAFILE);
         document.addListener(change -> {
             //add listeners for links
             Platform.runLater(() -> {

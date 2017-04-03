@@ -30,9 +30,11 @@ import java.util.*;
 public class Main extends Application {
 
     public static void main(String[] args) {
-        if (!Values.SRCFILE.exists()) {
-            Installation.launch(Installation.class, args);
-            return;
+        for (File file : Values.INSTALLABLEFILES) {
+            if (!file.exists()) {
+                Installation.launch(Installation.class, args);
+                return;
+            }
         }
 
         launch(args);
