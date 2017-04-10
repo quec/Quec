@@ -11,8 +11,9 @@ public class Values {
     public static final File COOKIESFILE = new File(SRCFILE, "cookies.qbf");
     public static final File BOOKMARKFILE = new File(SRCFILE, "bookmarks.qbf");
     public static final File USERDATAFILE = new File(SRCFILE, "userdata");
+    public static final File EXTENSIONSFILE = new File(SRCFILE, "extensions");
 
-    static final File[] INSTALLABLEFILES = new File[] {SRCFILE, COOKIESFILE, BOOKMARKFILE, USERDATAFILE};
+    static final File[] INSTALLABLEFILES = new File[] {SRCFILE, COOKIESFILE, BOOKMARKFILE, USERDATAFILE, EXTENSIONSFILE};
 
     static final Double[] ZOOM_LIST = {.25, .5, 1.0, 1.5, 2.0, 4.0};
 }

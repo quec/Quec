@@ -1,13 +1,16 @@
 package com.gmail.stefvanschiedev.browser;
 
+import com.gmail.stefvanschiedev.browser.api.Extension;
 import com.gmail.stefvanschiedev.browser.installation.Installation;
 import com.gmail.stefvanschiedev.browser.utils.CookieUtil;
 import com.gmail.stefvanschiedev.browser.utils.KeyShortcutManager;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -21,11 +24,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Main browser application
  */
-public class Main extends Application {
+public class BrowserMain extends Application {
 
     public static void main(String[] args) {
         for (File file : Values.INSTALLABLEFILES) {
@@ -43,11 +48,50 @@ public class Main extends Application {
     @FXML
     private TabPane tabPane;
 
+    private Collection<Extension> extensions;
+
     @FXML
     public void initialize() {
+        instance = this;
+
+        extensions = new HashSet<>();
+
         KeyShortcutManager keyShortcut = KeyShortcutManager.getInstance();
         keyShortcut.intialize(tabPane);
         keyShortcut.add(Arrays.asList(KeyCode.CONTROL, KeyCode.T), this::addTab);
+
+        //load extensions
+        if (Values.EXTENSIONSFILE == null || !Values.EXTENSIONSFILE.exists() || Values.EXTENSIONSFILE.listFiles() == null) {
+            System.out.println("Severe error...");
+            return;
+        }
+
+        for (File file : Values.EXTENSIONSFILE.listFiles()) {
+            if (!file.isFile() || !file.getName().endsWith(".jar"))
+                continue;
+
+            try {
+                JarFile jar = new JarFile(file);
+                JarEntry entry = jar.getJarEntry("extension.properties");
+
+                if (entry == null)
+                    continue;
+
+                InputStream input = jar.getInputStream(entry);
+                Properties props = new Properties();
+                props.load(input);
+                Object mainClass = props.get("main");
+
+                URLClassLoader child = new URLClassLoader(new URL[] {file.toURI().toURL()}, this.getClass().getClassLoader());
+                Class<? extends Extension> classToLoad = Class.forName(mainClass.toString(), true, child).asSubclass(Extension.class);
+                Extension instance = classToLoad.newInstance();
+                instance.setEnabled(true);
+
+                extensions.add(instance);
+            } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
         CookieManager manager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 
@@ -119,6 +163,10 @@ public class Main extends Application {
             //save bookmarks
             Bookmark.save();
 
+            //disable extensions
+            for (Extension extension : extensions)
+                extension.setEnabled(false);
+
             Platform.exit();
         });
 
@@ -131,7 +179,27 @@ public class Main extends Application {
         tab.setClosable(false);
 
         tabs.add(tab);
+
+        tabPane.getTabs().addListener((ListChangeListener.Change<? extends Tab> c) -> {
+            c.next();
+            if (c.wasAdded()) {
+                for (Tab t : c.getAddedSubList()) {
+                    BrowserTab bt = (BrowserTab) t;
+                    for (Extension extension : extensions) {
+                        Collection<Node> nodes = extension.getIcons(bt);
+
+                        if (nodes == null)
+                            continue;
+
+                        for (Node node : nodes)
+                            bt.addIcon(node);
+                    }
+                }
+            }
+        });
+
         addTab();
+
         tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() + 1 == tabs.size())
                 addTab();
@@ -147,7 +215,7 @@ public class Main extends Application {
             // Load person overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setController(this);
-            loader.setLocation(Main.class.getResource("/browser.fxml"));
+            loader.setLocation(BrowserMain.class.getResource("/browser.fxml"));
 
             stage.setScene(new Scene(loader.load()));
             stage.show();
@@ -209,5 +277,10 @@ public class Main extends Application {
 
         tabs.add(tabs.size() - 1, browserTab);
         tabPane.getSelectionModel().select(tabs.size() - 2);
+    }
+
+    private static BrowserMain instance;
+    public static BrowserMain getInstance() {
+        return instance;
     }
 }

@@ -1,5 +1,6 @@
 package com.gmail.stefvanschiedev.browser;
 
+import com.gmail.stefvanschiedev.browser.api.Extension;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
@@ -12,11 +13,14 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
@@ -40,22 +44,17 @@ import java.util.Arrays;
 /**
  * Represents a tab for the browser
  */
-class BrowserTab extends Tab {
+public class BrowserTab extends Tab {
 
-    @FXML
-    private WebView webView;
-    @FXML
-    private TextField urlField;
-    @FXML
-    private Button backButton;
-    @FXML
-    private Button forwardButton;
-    @FXML
-    private Button goButton;
-    @FXML
-    private ToggleButton bookmarkButton;
-    @FXML
-    private Label zoomLabel;
+    @FXML private HBox itemContainer;
+    @FXML private WebView webView;
+    @FXML private TextField urlField;
+    @FXML private Button backButton;
+    @FXML private Button forwardButton;
+    @FXML private Button goButton;
+    @FXML private ToggleButton bookmarkButton;
+    @FXML private HBox extensionIcons;
+    @FXML private Label zoomLabel;
 
     private ImageView imageView;
 
@@ -260,8 +259,6 @@ class BrowserTab extends Tab {
             stage.setScene(new Scene(view));
             stage.show();
 
-            System.out.println("popup");
-
             return view.getEngine();
         });
 
@@ -291,6 +288,14 @@ class BrowserTab extends Tab {
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
 
         setGraphic(imageView);
+    }
+
+    void addIcon(Node node) {
+        itemContainer.getChildren().add(itemContainer.getChildren().size() - 1, node);
+    }
+
+    public WebView getWebView() {
+        return webView;
     }
 
     void setURL(String urlText) {

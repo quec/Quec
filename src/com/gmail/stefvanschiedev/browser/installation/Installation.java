@@ -60,7 +60,7 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created directory\n");
             }
 
-            progress.setProgress(0.25);
+            progress.setProgress(0.2);
             text.setText("Creating files");
 
             if (!Values.COOKIESFILE.exists()) {
@@ -85,7 +85,7 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created cookie file\n");
             }
 
-            progress.setProgress(0.5);
+            progress.setProgress(0.4);
 
             if (!Values.BOOKMARKFILE.exists()) {
                 try {
@@ -109,8 +109,8 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created bookmark file\n");
             }
 
-            progress.setProgress(0.75);
-            text.setText("Creating folder");
+            progress.setProgress(0.6);
+            text.setText("Creating folders");
 
             if (!Values.USERDATAFILE.exists()) {
                 if (!Values.USERDATAFILE.mkdirs()) {
@@ -124,6 +124,20 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created userdata folder\n");
             }
 
+            progress.setProgress(0.8);
+
+            if (!Values.EXTENSIONSFILE.exists()) {
+                if (!Values.EXTENSIONSFILE.mkdirs()) {
+                    outputArea.setText(outputArea.getText() + "Fatal error: unable to create extensions folder\n");
+                    outputArea.setText(outputArea.getText() + "Installation terminated; removing created files and folders\n");
+                    text.setText("Terminating installation");
+                    undoInstallation();
+                    Platform.exit();
+                }
+
+                outputArea.setText(outputArea.getText() + "Created extensions folder\n");
+            }
+
             progress.setProgress(1);
 
             text.setText("Installation finished, run application again to start");
@@ -131,6 +145,9 @@ public class Installation extends Application {
     }
 
     private void undoInstallation() {
+        if (!Values.EXTENSIONSFILE.delete())
+            outputArea.setText(outputArea.getText() + "Fatal error: unable to delete extensions folder\n");
+
         if (!Values.USERDATAFILE.delete())
             outputArea.setText(outputArea.getText() + "Fatal error: unable to delete userdata folder\n");
 
