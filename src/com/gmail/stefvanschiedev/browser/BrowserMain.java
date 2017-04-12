@@ -61,6 +61,7 @@ public class BrowserMain extends Application {
         KeyShortcutManager keyShortcut = KeyShortcutManager.getInstance();
         keyShortcut.intialize(tabPane);
         keyShortcut.add(Arrays.asList(KeyCode.CONTROL, KeyCode.T), this::addTab);
+        keyShortcut.add(Collections.singletonList(KeyCode.F11), () -> stage.setFullScreen(!stage.isFullScreen()));
 
         //load extensions
         if (Values.EXTENSIONSFILE.listFiles() == null)
