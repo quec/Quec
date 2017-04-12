@@ -49,22 +49,22 @@ public class BrowserMain extends Application {
     private TabPane tabPane;
 
     private Collection<Extension> extensions;
+    private Map<String, Integer> visitedPages;
 
     @FXML
     public void initialize() {
         instance = this;
 
         extensions = new HashSet<>();
+        visitedPages = new HashMap<>();
 
         KeyShortcutManager keyShortcut = KeyShortcutManager.getInstance();
         keyShortcut.intialize(tabPane);
         keyShortcut.add(Arrays.asList(KeyCode.CONTROL, KeyCode.T), this::addTab);
 
         //load extensions
-        if (Values.EXTENSIONSFILE == null || !Values.EXTENSIONSFILE.exists() || Values.EXTENSIONSFILE.listFiles() == null) {
-            System.out.println("Severe error...");
+        if (Values.EXTENSIONSFILE.listFiles() == null)
             return;
-        }
 
         for (File file : Values.EXTENSIONSFILE.listFiles()) {
             if (!file.isFile() || !file.getName().endsWith(".jar"))
@@ -91,6 +91,16 @@ public class BrowserMain extends Application {
             } catch (IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+
+        //load visited pages
+        try {
+            for (String line : Files.readAllLines(Values.VISITEDPAGESFILE.toPath())) {
+                String[] values = line.split("~");
+                visitedPages.put(values[0], Integer.parseInt(values[1]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         CookieManager manager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
@@ -156,6 +166,16 @@ public class BrowserMain extends Application {
 
                     Files.write(cookieFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //save visited pages
+            try {
+                Files.write(Values.VISITEDPAGESFILE.toPath(), "".getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+
+                for (Map.Entry<String, Integer> entry : visitedPages.entrySet())
+                    Files.write(Values.VISITEDPAGESFILE.toPath(), (entry.getKey() + "~" + entry.getValue() + "\n").getBytes(), StandardOpenOption.APPEND);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -279,8 +299,12 @@ public class BrowserMain extends Application {
         tabPane.getSelectionModel().select(tabs.size() - 2);
     }
 
+    Map<String, Integer> getVisitedPages() {
+        return visitedPages;
+    }
+
     private static BrowserMain instance;
-    public static BrowserMain getInstance() {
+    static BrowserMain getInstance() {
         return instance;
     }
 }

@@ -1,18 +1,12 @@
 package com.gmail.stefvanschiedev.browser;
 
-import com.gmail.stefvanschiedev.browser.api.Extension;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker;
-import javafx.css.CssMetaData;
-import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -21,14 +15,15 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,10 +34,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a tab for the browser
@@ -296,6 +291,14 @@ public class BrowserTab extends Tab {
             }
         });
 
+        Platform.runLater(() -> {
+            AutoCompletionBinding<String> autoCompletion = TextFields.bindAutoCompletion(urlField, sort(BrowserMain.getInstance().getVisitedPages()).keySet());
+            autoCompletion.setHideOnEscape(true);
+            autoCompletion.setVisibleRowCount(10);
+            autoCompletion.prefWidthProperty().bind(urlField.widthProperty());
+            autoCompletion.setOnAutoCompleted(event -> goButton.fire());
+        });
+
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
 
         setGraphic(imageView);
@@ -310,10 +313,19 @@ public class BrowserTab extends Tab {
     }
 
     void setURL(String urlText) {
+        if (!BrowserMain.getInstance().getVisitedPages().containsKey(urlText))
+            BrowserMain.getInstance().getVisitedPages().put(urlText, 1);
+        else
+            BrowserMain.getInstance().getVisitedPages().put(urlText, BrowserMain.getInstance().getVisitedPages().get(urlText) + 1);
+
         webView.getEngine().load(urlText);
     }
 
     private void search(String text) {
         setURL("https://google.com/search?q=" + text);
+    }
+
+    private static LinkedHashMap<String, Integer> sort(Map<String, Integer> map) {
+        return map.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }

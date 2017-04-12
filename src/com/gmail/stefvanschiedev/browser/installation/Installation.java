@@ -60,7 +60,7 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created directory\n");
             }
 
-            progress.setProgress(0.2);
+            progress.setProgress(1.0 / 6.0);
             text.setText("Creating files");
 
             if (!Values.COOKIESFILE.exists()) {
@@ -85,7 +85,7 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created cookie file\n");
             }
 
-            progress.setProgress(0.4);
+            progress.setProgress(2.0 / 6.0);
 
             if (!Values.BOOKMARKFILE.exists()) {
                 try {
@@ -109,7 +109,31 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created bookmark file\n");
             }
 
-            progress.setProgress(0.6);
+            progress.setProgress(0.5);
+
+            if (!Values.VISITEDPAGESFILE.exists()) {
+                try {
+                    if (!Values.VISITEDPAGESFILE.createNewFile()) {
+                        outputArea.setText(outputArea.getText() + "Fatal error: unable to create visited pages file\n");
+                        outputArea.setText(outputArea.getText() + "Installation terminated; removing created files and folders\n");
+                        text.setText("Terminating installation");
+                        undoInstallation();
+                        Platform.exit();
+                    }
+                } catch (IOException e) {
+                    outputArea.setText(outputArea.getText() + "Fatal error: unable to create bookmark file\n");
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    outputArea.setText(outputArea.getText() + sw.toString() + "\nInstallation terminated; removing created files and folders\n");
+                    text.setText("Terminating installation");
+                    undoInstallation();
+                    Platform.exit();
+                }
+
+                outputArea.setText(outputArea.getText() + "Created visited pages file\n");
+            }
+
+            progress.setProgress(4.0 / 6.0);
             text.setText("Creating folders");
 
             if (!Values.USERDATAFILE.exists()) {
@@ -124,7 +148,7 @@ public class Installation extends Application {
                 outputArea.setText(outputArea.getText() + "Created userdata folder\n");
             }
 
-            progress.setProgress(0.8);
+            progress.setProgress(5.0 / 6.0);
 
             if (!Values.EXTENSIONSFILE.exists()) {
                 if (!Values.EXTENSIONSFILE.mkdirs()) {
