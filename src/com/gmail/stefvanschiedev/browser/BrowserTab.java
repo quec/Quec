@@ -297,6 +297,7 @@ public class BrowserTab extends Tab {
             autoCompletion.setVisibleRowCount(10);
             autoCompletion.prefWidthProperty().bind(urlField.widthProperty());
             autoCompletion.setOnAutoCompleted(event -> goButton.fire());
+            autoCompletion.setDelay(0L);
         });
 
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
