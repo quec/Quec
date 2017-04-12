@@ -5,11 +5,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.controlsfx.control.Notifications;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -165,6 +167,8 @@ public class Installation extends Application {
             progress.setProgress(1);
 
             text.setText("Installation finished, run application again to start");
+
+            Notifications.create().title("Installation").text("The installation process has finished!").showInformation();
         });
     }
 
@@ -183,5 +187,7 @@ public class Installation extends Application {
 
         if (!Values.SRCFILE.delete())
             outputArea.setText(outputArea.getText() + "Fatal error: unable to delete folder\n");
+
+        Notifications.create().title("Installation").text("An error occurred while installing the program").showError();
     }
 }
