@@ -11,6 +11,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
+import javafx.css.CssMetaData;
+import javafx.css.Styleable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebEngine;
@@ -133,14 +136,11 @@ public class BrowserTab extends Tab {
 
         title.addListener(change -> {
             String pageTitle = title.getValue();
-            String locationText = location.get();
 
             if (pageTitle == null || pageTitle.trim().isEmpty())
-                pageTitle = locationText;
+                pageTitle = location.get();
 
             setText(pageTitle);
-            urlField.setText(locationText);
-
         });
 
         WebHistory history = engine.getHistory();
@@ -264,8 +264,11 @@ public class BrowserTab extends Tab {
 
         location.addListener((observable, oldValue, newValue) -> {
             //check bookmarks
+            URL url;
+            String loc = location.get();
+
             try {
-                URL url = new URL(location.get());
+                url = new URL(loc);
 
                 if (Bookmark.getBookmark(url.getProtocol() + "://" + url.getHost()) != null)
                     bookmarkButton.setSelected(true);
@@ -273,7 +276,15 @@ public class BrowserTab extends Tab {
                     bookmarkButton.setSelected(false);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                return;
             }
+
+            urlField.setText(loc);
+
+            if (url.getProtocol().equals("https"))
+                urlField.setStyle("-fx-border-color: green;");
+            else
+                urlField.setStyle(null);
 
             //favicon
             try {
@@ -281,7 +292,7 @@ public class BrowserTab extends Tab {
                 Image favicon = new Image(faviconUrl, true);
                 imageView.setImage(favicon);
             } catch (UnsupportedEncodingException ex) {
-                throw new RuntimeException(ex); // not expected
+                ex.printStackTrace();
             }
         });
 

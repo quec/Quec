@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.web.WebView?>
+
+<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="371.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+    <columnConstraints>
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints maxHeight="185.0" minHeight="10.0" prefHeight="40.0" valignment="CENTER" vgrow="NEVER" />
+        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="331.0" valignment="TOP" vgrow="ALWAYS" />
+    </rowConstraints>
+    <WebView fx:id="webView" prefHeight="236.0" prefWidth="600.0" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
+   <HBox fx:id="itemContainer" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.valignment="CENTER">
+      <Button fx:id="backButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="&lt;" textAlignment="CENTER">
+          <tooltip>
+              <Tooltip text="Go back in history" textAlignment="CENTER" />
+          </tooltip>
+        <HBox.margin>
+           <Insets />
+        </HBox.margin>
+      </Button>
+      <Button fx:id="forwardButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="&gt;" textAlignment="CENTER">
+          <tooltip>
+              <Tooltip text="Go forward in history" textAlignment="CENTER" />
+          </tooltip>
+        <HBox.margin>
+           <Insets right="5.0" />
+        </HBox.margin>
+      </Button>
+      <TextField fx:id="urlField" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="100.0" prefHeight="0.0" promptText="Enter URL" HBox.hgrow="ALWAYS">
+          <tooltip>
+              <Tooltip text="Enter a URL here" />
+          </tooltip>
+        <HBox.margin>
+           <Insets left="5.0" right="5.0" />
+        </HBox.margin>
+      </TextField>
+      <Button fx:id="goButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Go" textAlignment="CENTER">
+          <tooltip>
+              <Tooltip text="Go to the entered URL" textAlignment="CENTER" />
+          </tooltip>
+        <HBox.margin>
+           <Insets left="5.0" />
+        </HBox.margin>
+      </Button>
+     <ToggleButton fx:id="bookmarkButton" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="♥" textAlignment="CENTER">
+        <HBox.margin>
+           <Insets right="5.0" />
+        </HBox.margin>
+     </ToggleButton>
+     <Label fx:id="zoomLabel" alignment="CENTER" contentDisplay="CENTER" minHeight="-Infinity" minWidth="-Infinity" text="100%" textAlignment="CENTER">
+        <tooltip>
+           <Tooltip text="Zoom percentage" textAlignment="CENTER" wrapText="true" />
+        </tooltip>
+        <HBox.margin>
+           <Insets left="5.0" />
+        </HBox.margin>
+     </Label>
+      <GridPane.margin>
+         <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+      </GridPane.margin>
+   </HBox>
+</GridPane>
