@@ -10,22 +10,22 @@ import java.util.*;
  */
 class ButtonManager {
 
-    private static Map<Node, List<KeyCode>> keys = new HashMap<>();
+    private static final Map<Node, List<KeyCode>> KEYS = new HashMap<>();
 
     static void put(Node node, KeyCode code) {
         List<KeyCode> codes;
 
-        if (keys.containsKey(node))
-            codes = keys.get(node);
+        if (KEYS.containsKey(node))
+            codes = KEYS.get(node);
         else
             codes = new ArrayList<>();
 
         codes.add(code);
-        keys.put(node, codes);
+        KEYS.put(node, codes);
     }
 
     static void remove(Node node, KeyCode code) {
-        List<KeyCode> codes = keys.get(node);
+        List<KeyCode> codes = KEYS.get(node);
 
         if (codes == null)
             return;
@@ -33,13 +33,13 @@ class ButtonManager {
         codes.remove(code);
 
         if (codes.isEmpty())
-            keys.remove(node);
+            KEYS.remove(node);
         else
-            keys.put(node, codes);
+            KEYS.put(node, codes);
     }
 
     static boolean contains(Node node, KeyCode code) {
-        List<KeyCode> codes = keys.get(node);
+        List<KeyCode> codes = KEYS.get(node);
 
         return codes != null && codes.contains(code);
     }

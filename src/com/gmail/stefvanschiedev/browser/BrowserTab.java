@@ -21,7 +21,6 @@ import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.w3c.dom.Document;
@@ -51,7 +50,7 @@ public class BrowserTab extends Tab {
     @FXML private Button forwardButton;
     @FXML private Button goButton;
     @FXML private ToggleButton bookmarkButton;
-    @FXML private HBox extensionIcons;
+    @FXML private HBox bookmarks;
     @FXML private Label zoomLabel;
 
     private ImageView imageView;
@@ -203,6 +202,8 @@ public class BrowserTab extends Tab {
                 else
                     //remove from memory and later remove it
                     Bookmark.removeBookmark(url.getProtocol() + "://" + url.getHost());
+
+                populateBookmarks();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
@@ -282,13 +283,7 @@ public class BrowserTab extends Tab {
                 urlField.setStyle(null);
 
             //favicon
-            try {
-                String faviconUrl = String.format("http://www.google.com/s2/favicons?domain_url=%s", URLEncoder.encode(location.get(), "UTF-8"));
-                Image favicon = new Image(faviconUrl, true);
-                imageView.setImage(favicon);
-            } catch (UnsupportedEncodingException ex) {
-                ex.printStackTrace();
-            }
+            imageView.setImage(getFavicon(location.get()));
         });
 
         Platform.runLater(() -> {
@@ -299,6 +294,9 @@ public class BrowserTab extends Tab {
             autoCompletion.setOnAutoCompleted(event -> goButton.fire());
             autoCompletion.setDelay(0L);
         });
+
+        //populate bookmarks
+        populateBookmarks();
 
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
 
@@ -324,6 +322,28 @@ public class BrowserTab extends Tab {
 
     private void search(String text) {
         setURL("https://google.com/search?q=" + text);
+    }
+
+    private Image getFavicon(String url) {
+        try {
+            return new Image(String.format("http://www.google.com/s2/favicons?domain_url=%s", URLEncoder.encode(url, "UTF-8")), true);
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private void populateBookmarks() {
+        bookmarks.getChildren().clear();
+
+        for (Bookmark bookmark : Bookmark.getBookmarks()) {
+            String url = bookmark.getBaseURL().toString();
+            Button button = new Button(url);
+            button.setGraphic(new ImageView(getFavicon(url)));
+            button.setOnMouseClicked(event -> setURL(url));
+            bookmarks.getChildren().add(button);
+        }
     }
 
     private static LinkedHashMap<String, Integer> sort(Map<String, Integer> map) {

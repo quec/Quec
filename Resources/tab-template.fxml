@@ -17,10 +17,11 @@
         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints maxHeight="185.0" minHeight="10.0" prefHeight="40.0" valignment="CENTER" vgrow="NEVER" />
-        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="331.0" valignment="TOP" vgrow="ALWAYS" />
+        <RowConstraints maxHeight="185.0" minHeight="10.0" prefHeight="37.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints maxHeight="185.0" minHeight="3.0" prefHeight="37.0" valignment="CENTER" vgrow="NEVER" />
+        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="300.0" valignment="TOP" vgrow="ALWAYS" />
     </rowConstraints>
-    <WebView fx:id="webView" prefHeight="236.0" prefWidth="600.0" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
+    <WebView fx:id="webView" prefHeight="236.0" prefWidth="600.0" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS" />
    <HBox fx:id="itemContainer" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.valignment="CENTER">
       <children>
           <Button fx:id="backButton" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="&lt;" textAlignment="CENTER">
@@ -59,6 +60,9 @@
             <HBox.margin>
                <Insets right="5.0" />
             </HBox.margin>
+            <tooltip>
+               <Tooltip text="Bookmark this page" />
+            </tooltip>
          </ToggleButton>
          <Label fx:id="zoomLabel" alignment="CENTER" contentDisplay="CENTER" minHeight="-Infinity" minWidth="-Infinity" text="100%" textAlignment="CENTER">
             <tooltip>
@@ -71,6 +75,11 @@
       </children>
       <GridPane.margin>
          <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+      </GridPane.margin>
+   </HBox>
+   <HBox fx:id="bookmarks" alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="690.0" GridPane.rowIndex="1">
+      <GridPane.margin>
+         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
       </GridPane.margin>
    </HBox>
 </GridPane>

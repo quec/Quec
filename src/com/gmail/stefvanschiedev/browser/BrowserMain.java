@@ -17,7 +17,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.controlsfx.glyphfont.FontAwesome;
 
 import java.io.*;
 import java.net.*;

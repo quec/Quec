@@ -11,17 +11,17 @@ import java.util.Set;
 /**
  * Represents a bookmark
  */
-public class Bookmark {
+class Bookmark {
 
-    private URL baseURL;
+    private final URL baseURL;
 
-    private static Set<Bookmark> bookmarks = new HashSet<>();
+    private static final Set<Bookmark> BOOKMARKS = new HashSet<>();
 
     private Bookmark(URL baseURL) {
         this.baseURL = baseURL;
     }
 
-    private URL getBaseURL() {
+    public URL getBaseURL() {
         return baseURL;
     }
 
@@ -34,7 +34,7 @@ public class Bookmark {
     }
 
     private static void addBookmark(URL baseURL) {
-        bookmarks.add(new Bookmark(baseURL));
+        BOOKMARKS.add(new Bookmark(baseURL));
     }
 
     static Bookmark getBookmark(String baseURL) {
@@ -48,12 +48,16 @@ public class Bookmark {
     }
 
     private static Bookmark getBookmark(URL baseURL) {
-        for (Bookmark bookmark : bookmarks) {
+        for (Bookmark bookmark : BOOKMARKS) {
             if (bookmark.getBaseURL().equals(baseURL))
                 return bookmark;
         }
 
         return null;
+    }
+
+    public static Set<Bookmark> getBookmarks() {
+        return BOOKMARKS;
     }
 
     static void load() {
@@ -66,14 +70,14 @@ public class Bookmark {
     }
 
     static void removeBookmark(String bookmark) {
-        bookmarks.remove(getBookmark(bookmark));
+        BOOKMARKS.remove(getBookmark(bookmark));
     }
 
     static void save() {
         try {
             Files.write(Values.BOOKMARKFILE.toPath(), "".getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
-            for (Bookmark bookmark : bookmarks)
+            for (Bookmark bookmark : BOOKMARKS)
                 Files.write(Values.BOOKMARKFILE.toPath(), (bookmark.getBaseURL().toString() + "\n").getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();

@@ -11,11 +11,11 @@ import java.util.*;
 public class KeyShortcutManager {
 
     private KeyShortcutManager() {}
-    private static KeyShortcutManager instance = new KeyShortcutManager();
-    public static KeyShortcutManager getInstance() { return instance; }
+    private static final KeyShortcutManager INSTANCE = new KeyShortcutManager();
+    public static KeyShortcutManager getInstance() { return INSTANCE; }
 
-    private Map<List<KeyCode>, Task> keyshortcuts = new HashMap<>();
-    private Set<KeyCode> pressedKeys = new HashSet<>();
+    private final Map<List<KeyCode>, Task> keyshortcuts = new HashMap<>();
+    private final Set<KeyCode> pressedKeys = new HashSet<>();
 
     public void add(List<KeyCode> codes, Task task) {
         keyshortcuts.put(codes, task);
