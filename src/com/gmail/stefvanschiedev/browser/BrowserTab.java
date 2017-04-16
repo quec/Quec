@@ -15,7 +15,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
@@ -53,6 +55,9 @@ public class BrowserTab extends Tab {
     @FXML private HBox bookmarks;
     @FXML private Label zoomLabel;
 
+    private GridPane gridPane;
+    private RowConstraints bookmarkRow;
+
     private ImageView imageView;
 
     BrowserTab() {
@@ -61,12 +66,12 @@ public class BrowserTab extends Tab {
             loader.setController(this);
             loader.setLocation(getClass().getResource("/tab-template.fxml"));
 
-            setContent(loader.load());
+            gridPane = loader.load();
+
+            setContent(gridPane);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        initialize();
     }
 
     @FXML
@@ -293,14 +298,18 @@ public class BrowserTab extends Tab {
             autoCompletion.prefWidthProperty().bind(urlField.widthProperty());
             autoCompletion.setOnAutoCompleted(event -> goButton.fire());
             autoCompletion.setDelay(0L);
-        });
 
-        //populate bookmarks
-        populateBookmarks();
+            //rows
+            bookmarkRow = gridPane.getRowConstraints().get(1);
+
+            //populate bookmarks
+            populateBookmarks();
+        });
 
         engine.setOnError(event -> engine.loadContent("<h1>Error</h1><br /><p>" + event.getMessage() + "</p>"));
 
         setGraphic(imageView);
+
     }
 
     void addIcon(Node node) {
@@ -336,6 +345,12 @@ public class BrowserTab extends Tab {
 
     private void populateBookmarks() {
         bookmarks.getChildren().clear();
+
+        if (Bookmark.getBookmarks().isEmpty()) {
+            gridPane.getRowConstraints().get(1).setPercentHeight(0.07253385);
+            return;
+        } else
+            gridPane.getRowConstraints().get(1).setPercentHeight(-1);
 
         for (Bookmark bookmark : Bookmark.getBookmarks()) {
             String url = bookmark.getBaseURL().toString();
