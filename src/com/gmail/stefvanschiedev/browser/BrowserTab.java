@@ -56,7 +56,6 @@ public class BrowserTab extends Tab {
     @FXML private Label zoomLabel;
 
     private GridPane gridPane;
-    private RowConstraints bookmarkRow;
 
     private ImageView imageView;
 
@@ -298,9 +297,6 @@ public class BrowserTab extends Tab {
             autoCompletion.prefWidthProperty().bind(urlField.widthProperty());
             autoCompletion.setOnAutoCompleted(event -> goButton.fire());
             autoCompletion.setDelay(0L);
-
-            //rows
-            bookmarkRow = gridPane.getRowConstraints().get(1);
 
             //populate bookmarks
             populateBookmarks();
