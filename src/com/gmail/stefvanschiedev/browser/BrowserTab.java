@@ -3,7 +3,6 @@ package com.gmail.stefvanschiedev.browser;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -17,7 +16,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
@@ -25,18 +23,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.events.EventListener;
-import org.w3c.dom.events.EventTarget;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.GlyphFontRegistry;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,14 +44,22 @@ public class BrowserTab extends Tab {
     @FXML private Button forwardButton;
     @FXML private Button goButton;
     @FXML private ToggleButton bookmarkButton;
-    @FXML private HBox bookmarks;
     @FXML private Label zoomLabel;
+    @FXML private Button settings;
+    @FXML private HBox bookmarks;
 
     private GridPane gridPane;
 
     private ImageView imageView;
 
-    BrowserTab() {
+    private boolean internal;
+
+    BrowserTab(boolean internal) {
+        this.internal = internal;
+
+        if (internal)
+            return;
+
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setController(this);
@@ -75,15 +75,19 @@ public class BrowserTab extends Tab {
 
     @FXML
     private void initialize() {
+        if (internal)
+            return;
+
         WebEngine engine = webView.getEngine();
-        ReadOnlyObjectProperty<Document> document = engine.documentProperty();
         ReadOnlyStringProperty location = engine.locationProperty();
+
+        settings.setGraphic(GlyphFontRegistry.font("FontAwesome").create(FontAwesome.Glyph.GEAR));
 
         imageView = new ImageView();
 
         engine.setUserAgent("Quec/1.0");
         engine.setUserDataDirectory(Values.USERDATAFILE);
-        document.addListener(change -> {
+        /*document.addListener(change -> {
             //add listeners for links
             Platform.runLater(() -> {
                 EventListener listener = ev -> {
@@ -128,7 +132,7 @@ public class BrowserTab extends Tab {
                 for (int i = 0; i < nodes.getLength(); i++)
                     ((EventTarget) nodes.item(i)).addEventListener("click", listener, false);
             });
-        });
+        });*/
 
         ReadOnlyStringProperty title = engine.titleProperty();
 
@@ -290,6 +294,8 @@ public class BrowserTab extends Tab {
             imageView.setImage(getFavicon(location.get()));
         });
 
+        settings.setOnMouseClicked(event -> BrowserMain.getInstance().addTab("browser:settings"));
+
         Platform.runLater(() -> {
             AutoCompletionBinding<String> autoCompletion = TextFields.bindAutoCompletion(urlField, sort(BrowserMain.getInstance().getVisitedPages()).keySet());
             autoCompletion.setHideOnEscape(true);
@@ -317,6 +323,18 @@ public class BrowserTab extends Tab {
     }
 
     void setURL(String urlText) {
+        if (urlText.equalsIgnoreCase("browser:settings")) {
+            //load settings
+            internal = true;
+
+            setContent(BrowserMain.getInstance().getSettingsPane().getContent());
+
+            setTooltip(new Tooltip("Settings"));
+            setGraphic(GlyphFontRegistry.font("FontAwesome").create(FontAwesome.Glyph.GEAR));
+            setText("Settings");
+            return;
+        }
+
         if (!BrowserMain.getInstance().getVisitedPages().containsKey(urlText))
             BrowserMain.getInstance().getVisitedPages().put(urlText, 1);
         else

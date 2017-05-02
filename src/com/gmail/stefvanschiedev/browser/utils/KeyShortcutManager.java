@@ -21,7 +21,7 @@ public class KeyShortcutManager {
         keyshortcuts.put(codes, task);
     }
 
-    public void intialize(Control control) {
+    public void initialize(Control control) {
         control.setOnKeyPressed(event -> {
             pressedKeys.add(event.getCode());
 

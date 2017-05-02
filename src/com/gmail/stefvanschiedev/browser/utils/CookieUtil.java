@@ -19,7 +19,7 @@ public class CookieUtil {
             Field header = clazz.getDeclaredField("header");
             header.setAccessible(true);
 
-            return cookie.getName() + "=" + cookie.getValue() +
+            return cookie.getName() + "|" + cookie.getValue() +
                     ";Comment=" + cookie.getComment() +
                     ";CommentURL=" + cookie.getCommentURL() +
                     ";Discard=" + cookie.getDiscard() +
@@ -40,12 +40,12 @@ public class CookieUtil {
 
     public static HttpCookie fromString(String string) {
         String[] split = string.split(";");
-        String[] nameValue = split[0].split("=");
+        String[] nameValue = split[0].split("|");
 
         if (nameValue.length < 2)
             return null;
 
-        HttpCookie cookie = new HttpCookie(nameValue[0], nameValue[1]);
+        HttpCookie cookie = new HttpCookie(nameValue[1], nameValue[2]);
 
         for (int i = 1; i < split.length; i++) {
             String[] value = split[i].split("=");

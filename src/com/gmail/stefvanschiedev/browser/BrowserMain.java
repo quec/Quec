@@ -51,16 +51,30 @@ public class BrowserMain extends Application {
     private Collection<Extension> extensions;
     private Map<String, Integer> visitedPages;
 
+    private Properties settings;
+    private Settings settingsPane;
+
     @FXML
     public void initialize() {
         instance = this;
 
         extensions = new HashSet<>();
         visitedPages = new HashMap<>();
+        settings = new Properties();
+
+        try {
+            settings.load(new FileInputStream(Values.SETTINGSFILE));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        setUserAgentStylesheet(settings.getProperty("theme"));
+
+        settingsPane = new Settings();
 
         KeyShortcutManager keyShortcut = KeyShortcutManager.getInstance();
-        keyShortcut.intialize(tabPane);
-        keyShortcut.add(Arrays.asList(KeyCode.CONTROL, KeyCode.T), this::addTab);
+        keyShortcut.initialize(tabPane);
+        keyShortcut.add(Arrays.asList(KeyCode.CONTROL, KeyCode.T), () -> addTab(null));
         keyShortcut.add(Collections.singletonList(KeyCode.F11), () -> stage.setFullScreen(!stage.isFullScreen()));
 
         //load extensions
@@ -108,19 +122,15 @@ public class BrowserMain extends Application {
 
         try {
             for (String line : Files.readAllLines(Values.COOKIESFILE.toPath())) {
-                String[] values = line.split("\\|");
-                String[] actualValues = values[1].split(":");
+                String[] values = line.split("~");
 
-                if (actualValues.length < 2)
-                    continue;
-
-                for (String header : actualValues[1].split("~")) {
+                for (String header : values) {
                     HttpCookie cookie = CookieUtil.fromString(header);
 
                     if (cookie == null || cookie.hasExpired())
                         continue;
 
-                    manager.getCookieStore().add(new URI(values[0]), cookie);
+                    manager.getCookieStore().add(new URI(header.split("|")[0]), cookie);
                 }
             }
         } catch (IOException | URISyntaxException e) {
@@ -149,24 +159,23 @@ public class BrowserMain extends Application {
             }
 
             //save cookies
-            CookieStore store = ((CookieManager) CookieHandler.getDefault()).getCookieStore();
+            CookieManager man = (CookieManager) CookieHandler.getDefault();
+            CookieStore store = man.getCookieStore();
             try {
                 Path cookieFilePath = Values.COOKIESFILE.toPath();
 
                 Files.write(cookieFilePath, ("").getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
                 for (URI uri : store.getURIs()) {
-                    Files.write(cookieFilePath, (uri + "|Cookie:").getBytes(), StandardOpenOption.APPEND);
-
                     for (HttpCookie cookie : store.get(uri)) {
                         if (cookie.hasExpired())
                             continue;
 
-                        Files.write(cookieFilePath, (CookieUtil.toString(cookie) + "~").getBytes(), StandardOpenOption.APPEND);
+                        Files.write(cookieFilePath, (uri.toString() + "|" + CookieUtil.toString(cookie) + "~").getBytes(), StandardOpenOption.APPEND);
                     }
-
-                    Files.write(cookieFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
                 }
+
+                Files.write(cookieFilePath, "\n".getBytes(), StandardOpenOption.APPEND);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -187,6 +196,13 @@ public class BrowserMain extends Application {
             //disable extensions
             for (Extension extension : extensions)
                 extension.setEnabled(false);
+
+            //save settings
+            try {
+                settings.store(new FileOutputStream(Values.SETTINGSFILE), "");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             Platform.exit();
         });
@@ -219,11 +235,11 @@ public class BrowserMain extends Application {
             }
         });
 
-        addTab();
+        addTab(null);
 
         tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() + 1 == tabs.size())
-                addTab();
+                addTab(null);
         });
     }
 
@@ -245,10 +261,10 @@ public class BrowserMain extends Application {
         }
     }
 
-    private void addTab() {
-        BrowserTab browserTab = new BrowserTab();
+    public void addTab(String url) {
+        BrowserTab browserTab = new BrowserTab(url != null && url.startsWith("browser:"));
         browserTab.setText("Loading...");
-        browserTab.setURL("https://google.com/");
+        browserTab.setURL(url == null || url.isEmpty() ? "https://google.com/" : url);
 
         ContextMenu tabContextMenu = new ContextMenu();
 
@@ -302,6 +318,14 @@ public class BrowserMain extends Application {
 
     Map<String, Integer> getVisitedPages() {
         return visitedPages;
+    }
+
+    public Properties getSettings() {
+        return settings;
+    }
+
+    public Settings getSettingsPane() {
+        return settingsPane;
     }
 
     private static BrowserMain instance;
